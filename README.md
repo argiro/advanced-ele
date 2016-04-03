@@ -5,5 +5,12 @@ Repository for the course of Advanced Electronics (Unito Physics Department)
 # Repo download 
 
 ```
-git clone https://github.com/argiro/advanced-ele
+linux% git clone https://github.com/argiro/advanced-ele
 ```
+
+# UNIX setup
+
+```
+linux% source ~/local/xilinx/VIVADO/2015.5/.../settings.(c)sh
+```
+
