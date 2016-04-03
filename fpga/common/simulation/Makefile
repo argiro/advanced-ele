@@ -1,7 +1,6 @@
 
 #-----------------------------------------------------------------------------------------------------
-#                                       University of Torino
-#                                       Department of Physics
+#                               University of Torino -Department of Physics
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
 # [File name]      Makefile
