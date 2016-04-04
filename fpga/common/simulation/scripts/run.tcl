@@ -19,11 +19,11 @@
 # wave_add ...
 
 
-## run the entire simulatio until a $finish or a $stop statement is encountered in testbench
+## run the entire simulation until a $finish or a $stop statement is encountered in the testbench
 run all
 
 
-## run the simulation for a certain amoutn of time
+## run the simulation for a certain amount of time
 #run 720ns
 #run 2.5us
 
