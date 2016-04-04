@@ -3,8 +3,8 @@
 //                               University of Torino - Department of Physics
 //                                   via Giuria 1 10125, Torino, Italy
 //-----------------------------------------------------------------------------------------------------
-// [File name]      gates2.v
-// [Project]        Adavanced Electronics Laboratory course
+// [Filename]       gates2.v
+// [Project]        Advanced Electronics Laboratory course
 // [Author]         <group>
 // [Language]       Verilog 2001 [IEEE Std. 1364-2001]
 // [Created]        -
