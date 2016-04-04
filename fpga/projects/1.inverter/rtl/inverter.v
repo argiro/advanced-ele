@@ -1,9 +1,10 @@
+
 //-----------------------------------------------------------------------------------------------------
 //                               University of Torino - Department of Physics
 //                                   via Giuria 1 10125, Torino, Italy
 //-----------------------------------------------------------------------------------------------------
-// [File name]      inverter.v
-// [Project]        Adavanced Electronics Laboratory course
+// [Filename]       inverter.v
+// [Project]        Advanced Electronics Laboratory course
 // [Author]         Luca Pacher - pacher@to.infn.it
 // [Language]       Verilog 1995 [IEEE Std. 1364-1995]
 // [Created]        Mar 02, 2016
