@@ -3,8 +3,8 @@
 #                               University of Torino - Department of Physics
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
-# [File name]      Makefile
-# [Project]        Adavanced Electronics Laboratory course
+# [Filename]       Makefile
+# [Project]        Advanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       GNU Makefile
 # [Created]        Mar 05, 2016
