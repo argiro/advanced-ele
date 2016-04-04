@@ -2,8 +2,8 @@
 #                               University of Torino - Department of Physics
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
-# [File name]      download.tcl
-# [Project]        Adavanced Electronics Laboratory course
+# [Filename]       download.tcl
+# [Project]        Advanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       Tcl/Xilinx Vivado Tcl commands
 # [Created]        Mar 23, 2016
