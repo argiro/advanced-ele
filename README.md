@@ -16,6 +16,6 @@ linux% git clone https://github.com/argiro/advanced-ele
 # UNIX setup
 
 ```
-linux% source ~/local/xilinx/VIVADO/2015.5/.../settings.(c)sh
+linux% source ~/local/xilinx/Vivado/2015.4/settings.(c)sh
 ```
 
