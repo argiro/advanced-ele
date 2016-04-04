@@ -21,8 +21,8 @@
 set_property -dict {PACKAGE_PIN A8 IOSTANDARD LVCMOS33} [get_ports X]
 
 
-## **NOTE - Instead of using a dictionary you can also spefify the pin position
-## and the electrical standard independentely with the following less compact syntax:
+## **NOTE - Instead of using a dictionary you can also spefify pin position
+## and electrical standard independentely with the following less compact syntax:
 
 #set_property PACKAGE_PIN  A8        [get_ports X]
 #set_property IOSTANDARD   LVCMOS33  [get_ports X]
