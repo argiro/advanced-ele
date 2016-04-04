@@ -7,13 +7,13 @@
 # [Project]        Adavanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       Xilinx Design Constraints (XDC) Tcl commands
-# [Created]        Mar 05, 2016
-# [Modified]       Mar 05, 2016
+# [Created]        Mar 22, 2016
+# [Modified]       Mar 22, 2016
 # [Description]    Implementation constraints for Verilog modules inverter.v and inverter2.v
 # [Notes]          All pin positions and electrical properties refer to the Digilent Arty 
 #                  development board
 # [Version]        1.0
-# [Revisions]      05.03.2016 - Created
+# [Revisions]      22.03.2016 - Created
 #-----------------------------------------------------------------------------------------------------
 
 
