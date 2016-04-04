@@ -2,8 +2,8 @@
 #                               University of Torino - Department of Physics
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
-# [File name]      run.tcl
-# [Project]        Adavanced Electronics Laboratory course
+# [Filename]       run.tcl
+# [Project]        Advanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       Tcl/Xilinx Vivado Tcl commands
 # [Created]        Apr 04, 2016
@@ -16,7 +16,9 @@
 
 
 ## choose which signals will be plotted in the waveform window
-# wave_add ...
+# add_wave /tb_module/clk
+# add_wave /tb_module/rst
+# add_wave /tb_module/DUT/rst
 
 
 ## run the entire simulation until a $finish or a $stop statement is encountered in the testbench
@@ -24,8 +26,8 @@ run all
 
 
 ## run the simulation for a certain amount of time
-#run 720ns
-#run 2.5us
+#run 720 ns
+#run 2.5 us
 
 
 ## reset the simulation to t=0
