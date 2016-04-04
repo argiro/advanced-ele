@@ -4,7 +4,7 @@
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
 # [File name]      Makefile.defs
-# [Project]        Adavanced Elecrtonics Laboratory course
+# [Project]        Adavanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       GNU Makefile
 # [Created]        Mar 05, 2016
@@ -12,7 +12,7 @@
 # [Description]    Targets implementation file
 # [Notes]          ** DO NOT EDIT **
 # [Version]        1.0
-# [Revisions]      05.03.2015 - Created
+# [Revisions]      05.03.2016 - Created
 #-----------------------------------------------------------------------------------------------------
 
 
@@ -55,11 +55,12 @@ clean :
 
 ## command-line help
 help :
-	@echo "\n                                                              "
-	@echo "   At the command line, type:                                   "
-	@echo "                                                                "
-	@echo "      make area  => setup a working area from scratch           "
-	@echo "      make comp  => compile-only HDL sources                    "
-	@echo "      make sim   => elaborate and simulate the design           "
-	@echo "      make elab  => standalone elaboration of HDL sources       "
-	@echo "--------------------------------------------------------------\n"
+	@echo "\n                                                               "
+	@echo "   At the command line, type:                                    "
+	@echo "                                                                 "
+	@echo "      make area  => setup a working area from scratch            "
+	@echo "      make comp  => compile-only HDL sources                     "
+	@echo "      make sim   => elaborate and simulate the design            "
+	@echo "      make elab  => standalone elaboration of HDL sources        "
+	@echo "      make clean => remove log files and other temporary files   "
+	@echo "---------------------------------------------------------------\n"

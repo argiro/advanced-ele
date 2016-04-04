@@ -4,17 +4,16 @@
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
 # [File name]      Makefile
-# [Project]        Adavanced Elecrtonics Laboratory course
+# [Project]        Adavanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       GNU Makefile
 # [Created]        Mar 05, 2016
 # [Modified]       Mar 05, 2016
-# [Description]    Simple Makefile to run HDL simulations using Xilinx Vivado Xsim simulator
-# [Notes]          Edit the code to fit your UNIX environment
+# [Description]    Simple Makefile to run HDL simulations using Xilinx Vivado XSim simulator
+# [Notes]          Edit the code in order to proper include HDL sources for your current design
 # [Version]        1.0
-# [Revisions]      05.03.2015 - Created
+# [Revisions]      05.03.2016 - Created
 #-----------------------------------------------------------------------------------------------------
-
 
 
 ## simulation directory
