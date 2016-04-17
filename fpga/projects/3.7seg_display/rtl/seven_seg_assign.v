@@ -7,12 +7,12 @@
 // [Project]        Advanced Electronics Laboratory course
 // [Author]         Luca Pacher - pacher@to.infn.it
 // [Language]       Verilog 2001 [IEEE Std. 1364-2001]
-// [Created]        Apr 16, 2016
-// [Modified]       Apr 16, 2016
+// [Created]        Mar 16, 2016
+// [Modified]       Mar 16, 2016
 // [Description]    Simple driving module for a 7-segments display using logic constants
 // [Notes]          -
 // [Version]        1.0
-// [Revisions]      16.04.2016 - Created
+// [Revisions]      16.03.2016 - Created
 //-----------------------------------------------------------------------------------------------------
 
 

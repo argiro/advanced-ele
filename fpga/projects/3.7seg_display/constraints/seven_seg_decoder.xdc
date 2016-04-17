@@ -7,13 +7,13 @@
 # [Project]        Advanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       Xilinx Design Constraints (XDC) Tcl commands
-# [Created]        Apr 16, 2016
-# [Modified]       Apr 16, 2016
+# [Created]        Mar 16, 2016
+# [Modified]       Mar 16, 2016
 # [Description]    Implementation constraints for Verilog module seven_seg_decoder.v
 # [Notes]          All pin positions and electrical properties refer to the Digilent Arty 
 #                  development board
 # [Version]        1.0
-# [Revisions]      16.04.2016 - Created
+# [Revisions]      16.03.2016 - Created
 #-----------------------------------------------------------------------------------------------------
 
 
