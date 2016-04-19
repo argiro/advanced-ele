@@ -18,10 +18,11 @@
 # [Revisions]      23.03.2016 - Created
 #-----------------------------------------------------------------------------------------------------
 
-
+## project-dependent parameters
 ## design name
 set TOP   inverter
 
+#######################################################################################################
 
 ## bitstream file
 set OUT_DIR  $::env(PWD)/results
@@ -40,8 +41,13 @@ puts "Current hardware server set to [get_hw_servers]"
 
 
 ## specify target FPGA
-current_hw_target  [get_hw_targets */xilinx_tcf/Digilent/210319788783A]
+## manually
+#current_hw_target  [get_hw_targets */xilinx_tcf/Digilent/210319788446A]
+
+## automatically
 open_hw_target
+current_hw_device [lindex [get_hw_devices] 0]
+refresh_hw_device -update_hw_probes false [lindex [get_hw_devices] 0]
 
 
 ## specify bitstream file

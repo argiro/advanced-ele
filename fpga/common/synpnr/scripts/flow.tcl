@@ -18,13 +18,21 @@
 # [Revisions]      23.03.2016 - Created
 #-----------------------------------------------------------------------------------------------------
 
+## HDL sources directory
+set RTL_DIR  $::env(PWD)/../rtl
+
+## project-dependent parameters
+
+## top-level design module
+set TOP  inverter
+
+## list of HDL files
+set RTL_SOURCES [list $RTL_DIR/inverter.v ]
+
+######################################################################################################
 
 ## target FPGA (Digilent Arty development board)
 set PART xc7a35ticsg324-1L
-
-
-## HDL sources directory
-set RTL_DIR  $::env(PWD)/../rtl
 
 
 ## design constraints directory
@@ -37,14 +45,6 @@ set TCL_DIR $::env(PWD)/scripts
 
 ## results directory
 set OUT_DIR  $::env(PWD)/results
-
-
-## top-level design module
-set TOP  inverter
-
-
-## list of HDL files
-set RTL_SOURCES [list $RTL_DIR/inverter.v ]
 
 
 ## read and parse HDL sources
