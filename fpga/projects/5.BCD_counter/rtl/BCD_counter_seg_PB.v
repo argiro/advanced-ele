@@ -1,54 +1,54 @@
-
-`timescale 1ns / 100ps
-
-// Dependences:
-//
+ 
+`timescale 1ns / 100ps 
+ 
+// Dependences: 
+// 
 // $RTL_DIR/BCD_counter.v
-// $RTL_DIR/seg_decoder.v
-
-//`define DEBOUNCE
-
-module BCD_counter_seg_PB(
-
-   input  BTN,
-   input  rst,
-
-   //input  clk,
+// $RTL_DIR/seg_decoder.v 
+ 
+//`define DEBOUNCE 
+ 
+module BCD_counter_seg_PB( 
+ 
+   input  BTN, 
+   input  rst, 
+ 
+   //input  clk, 
    
-   output segA,
-   output segB,
-   output segC,
-   output segD,
-   output segE,
-   output segF,
-   output segG,
-   output segDP ) ;
+   output segA, 
+   output segB, 
+   output segC, 
+   output segD, 
+   output segE, 
+   output segF, 
+   output segG, 
+   output segDP ) ; 
+ 
 
-
-
+ 
    // enable/disable the usage of a single-pulse generator as a debouncer
-   
-   `ifdef DEBOUNCE
-   reg q0, q1, q2 ;
-   
-   always @(posedge clk) begin
-      q0 <= BTN ;
-      q1 <= q0 ;
-      q2 <= q0 & (~q1) ;
-   end
-   `endif
-   
-   // BCD counter
-
+    
+   `ifdef DEBOUNCE 
+   reg q0, q1, q2 ; 
+    
+   always @(posedge clk) begin 
+      q0 <= BTN ; 
+      q1 <= q0 ; 
+      q2 <= q0 & (~q1) ; 
+   end 
+   `endif 
+    
+   // BCD counter 
+ 
    wire [3:0] BCD ;
-
+ 
    BCD_counter  counter(
-
-      .clk  (  BTN ),
-      .rst  (  rst ),
+ 
+      .clk  (  BTN ), 
+      .rst  (  rst ), 
       .BCD  (  BCD )
-
-   ) ;      
+ 
+   ) ;       
 
 
 
@@ -67,6 +67,6 @@ module BCD_counter_seg_PB(
       .segDP ( segDP )
 
    ) ;
-
-   
-endmodule
+ 
+    
+endmodule 
