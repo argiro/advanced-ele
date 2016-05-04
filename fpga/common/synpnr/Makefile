@@ -31,10 +31,14 @@ LOG_DIR = ${PWD}/log
 OUT_DIR = ${PWD}/results
 
 
+## reports directory
+RPT_DIR = ${PWD}/reports
+
+
 ## some useful aliases
 RM = rm -f
 RMDIR = rm -rf
 
 
 ## include targets implementation file
-include ./Makefile.defs
+include  $(TCL_DIR)/Makefile.defs
