@@ -1,4 +1,21 @@
 
+//-----------------------------------------------------------------------------------------------------
+//                               University of Torino - Department of Physics
+//                                   via Giuria 1 10125, Torino, Italy
+//-----------------------------------------------------------------------------------------------------
+// [Filename]       tb_BCD_counter_Ndigit.v [TESTBENCH]
+// [Project]        Advanced Electronics Laboratory course
+// [Author]         Luca Pacher - pacher@to.infn.it
+// [Language]       Verilog 2001 [IEEE Std. 1364-2001]
+// [Created]        Mar 02, 2016
+// [Modified]       May 09, 2016
+// [Description]    Testbench for N-digit BCD counter
+// [Notes]          -
+// [Version]        1.0
+// [Revisions]      02.03.2016 - Created
+//-----------------------------------------------------------------------------------------------------
+
+
 
 `timescale 1ns / 100ps
 
