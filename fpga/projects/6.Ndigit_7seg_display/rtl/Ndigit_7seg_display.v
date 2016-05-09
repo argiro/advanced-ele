@@ -1,14 +1,31 @@
 
+//-----------------------------------------------------------------------------------------------------
+//                               University of Torino - Department of Physics
+//                                   via Giuria 1 10125, Torino, Italy
+//-----------------------------------------------------------------------------------------------------
+// [Filename]       Ndigit_7seg_display.v
+// [Project]        Advanced Electronics Laboratory course
+// [Author]         Luca Pacher - pacher@to.infn.it
+// [Language]       Verilog 2001 [IEEE Std. 1364-2001]
+// [Created]        Mar 02, 2016
+// [Modified]       May 09, 2016
+// [Description]    3-digit BCD counter with 7-segment display anodes multiplexing
+// [Notes]          -
+// [Version]        1.0
+// [Revisions]      02.03.2016 - Created
+//-----------------------------------------------------------------------------------------------------
+
 
 // Dependences:
 //
 // $RTL_DIR/BCD_counter_Ndigit.v
-// $RTL_DIR/sevenseg_decoder.v
-// $RTL_DIR/BTN_debouncer.v
+// $RTL_DIR/seven_seg_decoder.v
+
 
 `timescale 1ns / 100ps
 
 `define Ndigit 3
+
 
 module Ndigit_7seg_display(
 
@@ -43,21 +60,6 @@ module Ndigit_7seg_display(
    assign count_slice = count[19:18] ;    // this choice determines the refresh frequency
    
    
-   // optionally, add debouncing circuit
-/* 
- 
-   wire BTN_debounced ;
-   
-   BTN_debouncer   debouncer(
-   
-      .btn     (            BTN ),
-      .clk     (       count[2] ),    // use a 100 MHz/4 clock
-      .LE_tick (                ),
-      .FE_tick (                ),
-      .pulse   (  BTN_debounced )
-   ) ;
-   
-*/
    
    // 3-digit BCD counter
    wire [11:0] BCD ;
@@ -66,7 +68,6 @@ module Ndigit_7seg_display(
 
       //.clk  (  clk_div ),
       .clk  (      BTN ),
-      //.clk  ( BTN_debounced ),
       .en   (       en ),
       .rst  (      rst ),
       .BCD  (      BCD )
@@ -90,13 +91,13 @@ module Ndigit_7seg_display(
    end
    
    
-   // anodes decoder
+   // anodes binary/one-hot decoder
    
-   assign seg_anode[0] = ( count_slice == 2'b00 ) ? 1'b1 : 1'b0 ;
-   assign seg_anode[1] = ( count_slice == 2'b01 ) ? 1'b1 : 1'b0 ;
-   assign seg_anode[2] = ( count_slice == 2'b10 ) ? 1'b1 : 1'b0 ;
-   
-
+   //     slice   |    seg_anode
+   //      00     |        001
+   //      01     |        010
+   //      10     |        100
+   //
    //               _                  _
    // _____________/ \________________/ \____  seg_anode[2]
    //             _                  _
@@ -104,12 +105,17 @@ module Ndigit_7seg_display(
    //           _                  _
    // _________/ \________________/ \________  seg_anode[0]
 
-   
-   
+
+   assign seg_anode[0] = ( count_slice == 2'b00 ) ? 1'b1 : 1'b0 ;
+   assign seg_anode[1] = ( count_slice == 2'b01 ) ? 1'b1 : 1'b0 ;
+   assign seg_anode[2] = ( count_slice == 2'b10 ) ? 1'b1 : 1'b0 ;
+
+
+
 
    // 7-segment decoder
 
-   seg_decoder  decoder(
+   seven_seg_decoder  decoder(
 
       .BCD   (   BCD_mux ),
       .segA  (      segA ),
@@ -119,7 +125,7 @@ module Ndigit_7seg_display(
       .segE  (      segE ),
       .segF  (      segF ),
       .segG  (      segG ),
-      .segDP (     segDP )
+      .segDP (           )
 
    ) ;
 
