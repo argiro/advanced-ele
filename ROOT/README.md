@@ -1,18 +1,18 @@
 
-ROOT home page:
+# ROOT home page
 
 ```
 https://root.cern.ch/
 ```
 
-Downloads page:
+# Downloads page
 
 ```
 https://root.cern.ch/downloading-root
 ```
 
 
-Documentation and tutorials:
+# Documentation and tutorials
 
 ```
 https://root.cern.ch/documentation
