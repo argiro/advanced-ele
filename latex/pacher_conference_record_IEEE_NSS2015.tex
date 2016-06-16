@@ -1,1 +1,471 @@
+%% bare minimum for a IEEE-like abstract
+%%\documentclass[a4paper, 9pt, twocolumn]{article}
 
+%%\documentclass[conference]{IEEEtran}   --include-directory=C:\path\to\IEEEtran directory 
+\documentclass[conference]{./templates/IEEEtran/IEEEtran}
+
+
+%% define page margins
+%\usepackage{geometry}
+
+
+\usepackage{upgreek}
+\usepackage{bm}
+
+%\usepackage{textcomp}  %% for \mu => \textmu
+%%\usepackage{palatino}
+
+%%\usepackage{siunitx}
+
+%% page margins
+%\geometry{verbose,a4paper,lmargin=15mm,rmargin=15mm,tmargin=20mm,bmargin=30mm}
+
+%% column separation
+%\setlength{\columnsep}{8mm}
+
+%% language
+%\usepackage[english]{babel}
+
+
+%% additional packages
+\usepackage[pdftex]{graphicx}
+%%\usepackage{nomencl}
+%%\usepackage{booktabs}
+%%\usepackage{latexsym}
+%%\usepackage{pdfpages}
+%%\usepackage{color}
+%%\usepackage{verbatim}
+%%\usepackage{mathrsfs}
+%%\usepackage{draftwatermark}
+
+
+%% nice style (bold numbering)
+%\usepackage{fancyhdr}
+
+%\pagestyle{fancy}
+%\fancyhf{}
+%\fancyhead{}
+
+%%\fancyhead[LO]{\bfseries \nouppercase{\leftmark}}
+%%\fancyhead[RE]{\bfseries \nouppercase{\rightmark}}
+
+%% bold page numbers
+%\fancyfoot[CO,CE]{\bfseries \thepage}
+
+%\renewcommand{\headrulewidth}{0pt}
+
+
+
+% correct bad hyphenation here
+\hyphenation{ca-pa-ci-tance compa-risons}
+
+%% begin document
+\begin{document}
+% Don't want date printed
+\date{}
+
+%% paper title
+\title{\LARGE {\bf A Low-Power Low-Noise Synchronous Pixel Front-End Chain              \\
+                       in~65~nm CMOS Technology with Local Fast ToT Encoding        \\ 
+					   and Autozeroing for Extreme Rate and Radiation at HL-LHC} }
+
+
+%%Luca Pacher\thanks{work}
+                  
+\author{Luca Pacher$\,^{1,2}$\footnote{Corresponding author}, \emph{Student Member IEEE}, Ennio Monteil\,$^{1,2}$, \\
+        Angelo Rivetti$\,^{2}$, \emph{member IEEE}, Natale Demaria$\,^{2}$ and Manuel Da Rocha Rolo$\,^{2}$        \\
+
+\vspace{1.6mm}	\\	 
+
+\small{$^{1}$ University of Torino, Department of Physics, 10125, Torino, Italy}                        \\[1mm]
+\small{$^{2}$ Istituto Nazionale di Fisica Nucleare (INFN), Section of Torino, 10125, Torino, Italy }   \\[2mm]
+%%\small{$^{\dagger}$ corresponding author - pacher@to.infn.it }	 		
+
+}%% end author
+
+\maketitle
+  
+%% abstract			
+%%\section*{\centering \normalsize Abstract }
+
+\section*{  }
+\begin{abstract}
+{\bf A low-power and low-noise synchronous front-end chain in a commercial 65 nm CMOS technology
+suitable for the future pixel upgrades at the CERN Large Hadron Collider (LHC) is 
+presented. A~shaper-less Charge-Sensitive Amplifier (CSA) with constant current feedback
+provides triangular pulse shaping for linear Time-over-Threshold (ToT) 
+charge measurement. The sensor leakage current is compensated 
+by the same feedback network. A~track-and-latch voltage comparator 
+is adopted for the hit discrimination. The hit generation is synchronized with a 
+40~MHz clock, minimizing time-walk issues in the time-stamp assignment. 
+Fast ToT charge encoding up to 8-bit resolution can be retrieved at the pixel 
+level exploiting a high-frequency self-generated clock signal. This is obtained by turning 
+the latch into a voltage-controlled oscillator (VCO) using asynchronous logic. 
+Pixel-to-pixel threshold variations are compensated by means of an autozeroed 
+scheme, thus avoiding the need of a on-pixel D/A converter.
+An array of 8~$\times$~8 cells with 50~$\bm{\upmu}$m $\times$ 50~$\bm{\upmu}$m pixel size has been prototyped.
+Design specifications, implementation and test results are discussed.}
+\end{abstract}
+
+
+
+%%\vspace*{5mm}
+
+\vspace*{1.2cm}
+
+%% summary
+\section{Introduction}
+
+
+\noindent The foreseen High-Luminosity (HL) LHC upgrade \cite{Rossi2012}
+\let\thefootnote\relax\footnote{This work was partially 
+supported by the Italian Ministry of Education and Research 
+(MIUR) under contract 2012Z23ERZ.}
+will impose the installation of new silicon pixel detectors 
+in the inner tracking systems of general-purpose experiments. 
+
+With increased performance the machine will deliver proton
+collisions with an instantaneous luminosity up to 10$^{35}$~cm$^{-2}$s$^{-1}$, 
+one order of magnitude higher with respect to the current design value, targeting 
+to reach an integrated luminosity of 3000~fb$^{-1}$ in 10 years.
+With such a luminosity and a centre-of-mass energy of 14~TeV the nominal collision 
+rate of 40~MHz will lead to unprecedented track densities, introducing extreme rates and radiation levels.
+More layers equipped with sensors featuring high granularity, speed and radiation 
+hardness will be required close to the interaction regions. Thus hybrid silicon pixel detectors 
+will continue to play a fundamental role.
+
+The innermost pixelated layer will have to cope with an expected Total Ionizing Dose (TID)
+of 10 MGy in 10 years, corresponding to 2~$\times$~10$^{16}$ (1~MeV) $n_{eq\,}$/cm$^{2}$. 
+Smaller pixels of the order of 50~$\mu$m~$\times$~50~$\mu$m will 
+be required to maintain high spatial resolution and two-tracks separation. 
+The particle flux will increase to 500~MHz/cm$^2$, leading to hit rates of the order of 3~GHz/cm$^2$
+and an estimated average rate per pixel of 75~kHz. The foreseen usage of thinner sensors of 
+100-150~$\mu$m thickness to increase the radiation tolerance will determine reduced signals, 
+needing low-threshold (as low as 1~k$e^-$ minimum detectable charge)
+and low-noise performance for the analogue front-end (below 150~$e^-$ RMS at nominal 100~fF input capacitance including strays).
+Moreover a time response below 25~ns is required in order to cope with the nominal 
+LHC bunch crossing rate, while keeping bias currents to acceptable 
+values and targeting to a total maximum power dissipation of 10~$\mu$W per pixel. More on-chip
+intelligence and much higher readout bandwidth will be required to accommodate unprecedented data rates. 
+
+
+%% ASICs
+Research and development activities devoted to the design of new pixel Application Specific Integrated 
+Circuits (ASIC) suitable for HL-LHC upgrades have started. 
+A commercial 65~nm CMOS process has been identified by the pixel ASIC community 
+as a promising fabrication technology for the implementation of new generation pixel readout chips. 
+Such a 65~nm was already demonstrated to be radiation tolerant up to 3~MGy \cite{Bonacini2011}. 
+Technology qualification and radiation hardness studies using 65~nm CMOS are now part of the 
+international RD53 collaboration research program officially supported 
+by CERN \cite{Christiansen2013} and of the Italian INFN CHIPIX65 project.
+
+Preliminary pixel front-end test structures, small pixel arrays and 
+other analogue, digital and mixed-signal building blocks have been submitted 
+by the CHIPIX65 collaboration to the foundry access service. 
+They were received back from the manufacturer for laboratory test measurements 
+and bench characterizations at the beginning of 2015.
+
+
+%% pixel chain Torino
+A small pixel array of 8~$\times$~8 cells with 50~$\mu$m~$\times$~50~$\mu$m 
+pixel size has been prototyped as part of the first 
+CHIPIX65 submission. In order to gain from increased speed
+offered by a 65~nm CMOS technology node and meet the low-threshold and low-power requirements, 
+a~synchronous front-end architecture has been implemented. 
+Section II of the paper describes the ASIC design, while test results are presented in Section III 
+and conclusions are drawn in Section IV.
+
+
+
+\vspace*{1.5cm}
+
+
+
+\section{ASIC design}
+\noindent A schematic block diagram of the front-end chain is reported in Fig.~\ref{archi}.
+The input stage is a charge-sensitive amplifier implemented as a single-ended,
+60~dB open-loop gain inverting amplifier with two selectable feedback capacitors.
+In order to save power and area a shaper-less solution is chosen. Hence the 
+CSA output directly drives the front-end discriminator.
+
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[width=0.48\textwidth]{./pictures/schematics/architecture.png}
+\caption{Schematic block diagram of the front-end channel. Selectable shunt capacitances 
+         at the input node allows to mimic different values of sensor capacitance.}  
+\label{archi}
+\end{figure}
+\end{center}
+
+
+
+ Linear charge measurements 
+up to 40 k$e^{-}$ are performed using the ToT technique, therefore triangular pulse shaping is adopted.
+A time-invariant feedback network based on an auxiliary transconductance amplifier discharges the feedback capacitance 
+with a selectable constant current in the 5-50~nA range after a charge signal has been detected~\cite{Krummenacher1991}.
+The~same feedback circuit compensates also the sensor leakage currents up to 50~nA.
+A calibration circuit is used to inject a test charge at the CSA input node. Selectable test
+capacitors have been added to mimic different values of pixel sensor capacitance.
+
+
+%% DISC
+The front-end amplifier is AC coupled to a discrete-time hit discriminator. In thi way, any offset caused by the feedback 
+transconductor can not propagate to the discriminator.
+A track-and-latch voltage comparator is employed. It is implemented as
+a low-gain high-bandwidth differential preamplifier coupled to a regenerative latch stage. 
+Thanks to positive feedback, precise and fast voltage comparison can be obtained with 
+low-power dissipation, allowing to discriminate very low charge-induced signals above 
+the nominal threshold. The generation of a CMOS digital hit pulse is synchronized with a
+40~MHz master clock, sampling the CSA analogue output. This provides
+a reliable solution that greatly relaxes time-walk issues in the time-stamp assignment.
+
+The latch stage is shown in Fig.~\ref{latch}. To reduce the power consumption, a dynamic architecture 
+is used, thus avoiding any DC path between power and ground rails both in the reset state and after 
+regeneration has occurred. Transistors M$_3$ and M$_4$ are inserted to isolate the latch from its driving preamplifier 
+(not shown in the figure) before the full output swing is attained. This significantly reduces the propagation 
+of kickback noise towards the charge-sensitive amplifier.
+
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[width=0.48\textwidth]{./pictures/schematics/latch.png}
+\caption{Regenerative stage of the synchronous comparator. Transistors M$_3$ and M$_4$ are introduced to mitigate 
+         the kickback noise.}
+\label{latch}
+\end{figure}
+\end{center}
+
+
+
+%% fast TOT
+The latch can be turned into a fast voltage-controlled oscillator (VCO) 
+by means of a dedicated asynchronous logic. Similar techniques are employed 
+in the design of modern charge redistribution Successive Approximation 
+Register (SAR) A/D converters which internally generate the necessary clock signals 
+for SAR operations~\cite{Liu2010}. As~derived from transient simulations,
+flexible and high-speed ToT digitizations up to 8-bit resolution can
+be performed in less than 400~ns using selectable on-pixel 
+self-generated clock waveforms in the 100-900 MHz range.
+
+%% autozeroing
+Pixel-to-pixel threshold variations are compensated without the need 
+of a local D/A converter for digital trimming. The offset voltage is periodically 
+sampled and stored on capacitors using Output-Offset Storage (OOS) between the 
+preamplifier and the latch~\cite{Razavi1992}. The lack of a on-pixel D/A converter 
+introduces fundamental advantages in perspective of pixel operations in a harsh radiation 
+environment, avoiding the necessity of dedicated Single Event Upset (SEU) tolerant registers 
+to store the configuration bits for digital trimming. The available area for local temporary 
+data storage (buffering) and signal processing in the digital part can significantly increase. Furthermore 
+efficient calibration schedules can be defined according to online machine operations. 
+
+The final layout of the chip, referred to as CHIPIX/TO, is presented in Fig.~\ref{CHIPIX_VFE1_TO_final}. 
+The analogue part occupies about 50\% of the total pixel size.
+
+
+\vspace*{0.7cm}
+
+\section{Test results}
+\noindent A picture of the prototype wire-bondend on the test board. In the measurements, the digital 
+control signals are provided by a data pattern generator and the outputs are acquired with a fast, 
+large bandwidth digital storage oscilloscope. Both the CSA and the discriminator outputs can be inspected 
+independently.
+
+
+
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[scale=0.28]{./pictures/layout/pixel_matrix_1x1_grayscale.png}
+\caption{Complete layout of the CHIPIX/TO chip, 945~$\mu$m~$\times$~945~$\mu$m. 
+         The~prototype contains 8~$\times$~8 pixels with synchronous front-end and full-analogue 
+		   readout of all channels.}  
+\label{CHIPIX_VFE1_TO_final}
+\end{figure}
+\end{center}
+
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[scale=0.4]{./pictures/setup/wirebonded_gray.jpg}
+\caption{Prototype chip wire-bondend on the test PCB.}  
+\label{setup}
+\end{figure}
+\end{center}
+
+
+
+
+
+% conclusions
+%The choice of a synchronous front-end discriminator introduces therefore several advantages and
+%very promising features that naturally fits into a bunched experiment.
+
+
+Sample oscilloscope waveforms are presented in Fig.~\ref{oscilloscope}. In the upper plot, 
+the CSA response to a test input of 1.5~fC is shown together with the synchronous hit signal. 
+In the lower one, the fast clock generated internally to the pixel is reported. This clock can be 
+used to drive a fast counter that encodes the signal duration. The on-chip output CMOS driver limits 
+the maximum measurable frequency to about 150~MHz. 
+
+%The measured Equivalent Noise Charge (ENC) is about 100 $e^{-}$ RMS at nominal 100~fF
+%input capacitance. The total power consumption is 6.4 $\mu$W per pixel. 
+%Measurements are in agreement with CAD simulations. First irradiation tests with 
+%X-rays and 3 MeV protons are foreseen in summer 2015.
+
+
+
+In the system, a trade-off exists between signal-to-noise ratio and dead time due to the choice of the bias current in 
+the feedback transconductor. In fact, a higher current determines a faster return to the baseline, but induces also an 
+additional ballistic deficit that affects the SNR. This aspect can be appreciated in Fig.~\ref{noise} that reports the ENC 
+versus input capacitance for 10~nA and 40~nA feedback current. For a typical input capacitance of 100~fF, the noise is 
+respectively 90 and 140 electrons RMS. Due to the differential nature of the  transconductor, only half of the feedback 
+current is actually available to discharge the CSA feedback capacitor. The dead time for an expected average signal of 
+2~fC is therefore 125~ns
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[scale=0.31]{./pictures/oscilloscope/hit_10ke.png}
+\includegraphics[scale=0.31]{./pictures/oscilloscope/fastClk_10ke.png}
+\caption{Sample waveforms at the oscilloscope for 10 k$e^{-}$ injected charge and 40~nA feedback current. 
+         The CSA output pulse with triangular shaping is sampled at 40 MHz. 
+         The width of the hit pulse is an integer number of clock cycles (top).
+         Latch operations when turned into a local oscillator for fast ToT counting (bottom). 
+		 The time base is 50 ns/div.}
+\label{oscilloscope}
+\end{figure}
+\end{center}
+
+
+
+\noindent for 40~nA and 500~ns for 10~nA.  The first value is already adequate for operating at the maximum 
+expected rate of 75~kHz per pixel with an efficiency better than 99\%.
+
+
+
+Before trimming the measured discriminator offset is 250 electrons RMS, as presented in Fig.~\ref{untrimmed}.
+The trimming is done by shorting both discriminator inputs to a common voltage and storing the offset in coupling 
+capacitors that connect the low-gain differential amplifier to the latch. For maximum accuracy, the offset 
+compensation cycle should be repeated every 100~$\mu$s. A few issues in the offset-compensation mechanism were 
+detected in the first version of the prototype and fixed in a second revision. 
+
+The threshold dispersion after trimming, measured in the improved prototype, is shown in Fig.~\ref{trimmed}. 
+The residual offset after calibration is 69.9 electrons RMS and agrees extremely well with the value (70 electrons) 
+predicted with computer simulations to evaluate the latch dynamic offset, which represents 
+the most prominent contribution. A minimum threshold of 600 electrons can therefore be used once the system is calibrated.
+The full front-end dissipates 6.4~$\mu$W at 1.2~V supply voltage.
+
+First irradiation tests were performed by exposing test prototypes to 10 keV photons. 
+No significant degradation in the analogue front-end performance were observed after a total
+dose of 600 Mrad.
+
+
+\vspace*{0.5cm}
+
+\section{Conclusions}
+A pixel front-end chain in 65~nm CMOS has been designed and tested. The key feature of the system 
+is the usage of a clocked comparator with embedded offset calibration. 
+When a signal is detected, the discriminator is automatically turned into a high-speed oscillator 
+that allows fast, multi-bit charge encoding with time-over-threshold measurement. 
+
+
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[width=0.48\textwidth]{./pictures/plots/ENC_vs_Cin.pdf}
+\caption{Measured ENC versus input capacitance for two different \break 
+         values of feedback current.}  
+\label{noise}
+\end{figure}
+\end{center}
+
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[width=0.48\textwidth]{./pictures/plots/untrimmed.pdf}
+\caption{Measured discriminator threshold distribution before autozeroing.}  
+\label{untrimmed}
+\end{figure}
+\end{center}
+
+
+
+
+
+\begin{center}
+\begin{figure}[!htpb]
+\centering
+\includegraphics[width=0.48\textwidth]{./pictures/plots/trimmed_v2.pdf}
+\caption{Measured discriminator threshold distribution after autozeroing.}  
+\label{trimmed}
+\end{figure}
+\end{center}
+
+
+
+
+
+
+
+
+
+The noise is primarily dictated by the current chosen to discharged the CSA feedback capacitor, while no significant 
+contribution induced by the digital signals present in the pixel cell has been observed. The design satisfies in term 
+of rate capability, sensitivity and power consumption the stringent requirements envisaged for the Phase-II upgrades 
+of the main LHC detectors.
+
+
+
+
+\vspace*{1cm}
+
+
+
+%% references
+\begin{thebibliography}{10}
+\small  % Use 9 point text.
+
+
+\bibitem{Rossi2012} L. Rossi and O. Bruning,
+                    \emph{High Luminosity Large Hadron Collider A Description for the European Strategy Preparatory Group},
+					     CERN/ATS-2012-236, 2012
+
+\bibitem{Bonacini2011} S. Bonacini et al.,
+                       \emph{Characterization of a commercial 65~nm CMOS technology for SLHC applications},
+                       JINST, 2011					
+
+\bibitem{Christiansen2013} J. Christiansen and M. Garcia-Sciveres,
+                           \emph{RD Collaboration Proposal: Development of Pixel Readout Integrated Circuits for 
+						   Extreme Rate and Radiation},
+                           CERN/LHCC-2013-008, 2013						   
+
+
+\bibitem{Krummenacher1991} F. Krummenacher, 
+                           \emph{Pixel detectors with Local Intelligence},
+                           NIM~A, 1991 
+
+\bibitem{Liu2010} C. C. Liu et al. ,
+                  \emph{A 10-bit 50 MS/s SAR ADC with a Monotonic Capacitor Switching Procedure},
+				  IEEE JSSC, 2010
+						   
+
+
+\bibitem{Razavi1992} B. Razavi and B. A. Wooley,
+                     \emph{Design Techniques for High-Speed High-Resolution Comparators},
+                     IEEE JSSC, 1992	   
+\end{thebibliography}
+\end{document}
