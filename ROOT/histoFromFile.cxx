@@ -45,7 +45,7 @@
 	  printf("Reading value %g \n", xval) ;
    }
    
-   fileName-> close();
+   fileName.close();
   
    //gPad->SetGridx();
    //gPad->SetGridy();
