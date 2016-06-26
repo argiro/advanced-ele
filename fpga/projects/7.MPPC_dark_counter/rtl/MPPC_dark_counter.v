@@ -60,8 +60,8 @@ module  MPPC_dark_counter(
 
    // timer clock
    wire    clk_time_counter ;
-   assign  clk_time_counter = clk_count[5] ;           // 100 MHz / 2^(5+1) = 1.5625 Hz, ~ 0.7s per count
-   //assign  clk_time_counter = clk_count[6] ;
+   assign  clk_time_counter = clk_count[25] ;           // 100 MHz / 2^(25+1) = 1.49 Hz, ~ 0.7s per count
+   //assign  clk_time_counter = clk_count[26] ;
 
 
    // control slice for anodes multiplexing
