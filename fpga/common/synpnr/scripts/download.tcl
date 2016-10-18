@@ -58,7 +58,7 @@ set_property  PROGRAM.FILE  $BITFILE  [lindex [get_hw_devices] 0]
 #set_property  PARAM.FREQUENCY  125000  [get_hw_targets */xilinx_tcf/Digilent/210319788783A]
 
 
-## download the firmware to target FPPA
+## download the firmware to target FPGA
 program_hw_devices  [lindex [get_hw_devices] 0]
 
 
