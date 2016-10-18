@@ -29,7 +29,7 @@ set OUT_DIR  $::env(PWD)/results
 set BITFILE  $OUT_DIR/bitstream/$TOP.bit
 
 
-## server setup (local machine)
+## server setup (local machine) 
 set SERVER   localhost
 set PORT     3121
 
