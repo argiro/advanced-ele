@@ -4,7 +4,7 @@
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
 # [Filename]      plotDataFromFile.py
-# [Project]       ROOT Hands-on Workshop / Day3
+# [Project]       Advanced Electronics Laboratory course
 # [Author]        Luca Pacher - pacher@to.infn.it
 # [Language]      Python/ROOT
 # [Created]       May 15, 2017
