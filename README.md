@@ -10,8 +10,9 @@ linux% git config --global user.email you@your.address
 ```
 
 ```
-linux% git clone https://github.com/argiro/advanced-ele
+linux% git clone https://github.com/argiro/advanced-ele [optional directory]
 ```
+
 
 # UNIX setup
 
