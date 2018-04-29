@@ -20,7 +20,6 @@
 default  : help
 
 
-
 ## setup a working area from scratch
 area :
 	@mkdir -p $(LOG_DIR)
@@ -34,15 +33,19 @@ area :
 	@mkdir -p $(OUT_DIR)/checkpoints
 
 
+## just an easier alias
+bit : xflow
+
 
 ## run the complete non-project mode Xilinx Vivado FPGA implementation flow
-flow :
-	@vivado -mode tcl -source $(TCL_DIR)/flow.tcl -nojournal -log $(LOG_DIR)/flow.log
+xflow :
 
+	@vivado -mode tcl -source $(TCL_DIR)/xflow.tcl -nojournal -log $(LOG_DIR)/flow.log
 
 
 ## download an existing bitstream to target FPGA
 download :
+
 	@vivado -mode tcl -source $(TCL_DIR)/download.tcl -nojournal -log $(LOG_DIR)/download.log
 
 
@@ -63,7 +66,7 @@ help :
 	@echo "   At the command line, type:                                             "
 	@echo "                                                                          "
 	@echo "      make area      => setup a working area from scratch                 "
-	@echo "      make flow      => run the complete FPGA implementation flow         "
+	@echo "      make bit       => run the complete FPGA implementation flow         "
 	@echo "      make download  => download an existing bitstream to target FPGA     "
 	@echo "      make clean     => remove log files and other temporary files        "
 	@echo "------------------------------------------------------------------------  "

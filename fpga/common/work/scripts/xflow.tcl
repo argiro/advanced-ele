@@ -3,20 +3,22 @@
 #                               University of Torino - Department of Physics
 #                                   via Giuria 1 10125, Torino, Italy
 #-----------------------------------------------------------------------------------------------------
-# [Filename]       flow.tcl
+# [Filename]       xflow.tcl
 # [Project]        Advanced Electronics Laboratory course
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       Tcl/Xilinx Vivado Tcl commands
 # [Created]        Mar 23, 2016
-# [Modified]       May 04, 2016
+# [Modified]       Apr 27, 2017
 # [Description]    Tcl script to run the complete Xilinx Vivado implementation flow in non-project mode
 # [Notes]          The script is executed by using
 #
-#                     linux% make flow
+#                     linux% make xflow [aliased to make bit]
 #
 # [Version]        1.0
 # [Revisions]      23.03.2016 - Created
 #                  04.05.2016 - Added design reporting statements
+#                  27.04.2017 - Removed UNIX-only $(PWD) references with OS-independent
+#                               built-in [pwd] Tcl command
 #-----------------------------------------------------------------------------------------------------
 
 
@@ -27,12 +29,12 @@
 
 
 ## HDL sources directory
-set RTL_DIR  $::env(PWD)/../rtl
+set RTL_DIR  [pwd]/../rtl
 
 
 ## top-level design module
 set TOP  inverter
-
+#set TOP  [find_top]
 
 ## list of HDL files
 set RTL_SOURCES [list $RTL_DIR/inverter.v ]
@@ -45,47 +47,55 @@ set RTL_SOURCES [list $RTL_DIR/inverter.v ]
 ####################################################################
 
 
-## target FPGA (Digilent Arty development board)
+## target FPGA (Digilent Arty7 development board)
 set PART xc7a35ticsg324-1L
 
 
 ## design constraints directory
-set XDC_DIR  $::env(PWD)/../constraints
+set XDC_DIR  [pwd]/../constraints
 
 
 ## scripts directory
-set TCL_DIR $::env(PWD)/scripts
+set TCL_DIR  [pwd]/scripts
 
 
 ## results directory
-set OUT_DIR  $::env(PWD)/results
+set OUT_DIR  [pwd]/results
 
 
 ## reports directory
-set RPT_DIR  $::env(PWD)/reports
+set RPT_DIR  [pwd]/reports
 
 
 ## read and parse HDL sources
 read_verilog  $RTL_SOURCES
 
+#read_verilog  ${VLOG_SOURCES}
+#read_vhdl     ${VHDL_SOURCES}
 
 #set_part $PART
 #set_property top $TOP [current_fileset]
 
 
-## read an parse design constraints
-read_xdc  $XDC_DIR/$TOP.xdc
+
+#########################
+##   RTL ELABORATION   ##
+#########################
+
+## elaborate RTL source files into a schematic
+synth_design -rtl -top ${TOP} -part ${PART} -flatten_hierarchy none -name rtl_1
 
 
+##########################
+##   MAPPED SYNTHESIS   ##
+##########################
 
-
-###################
-##   SYNTHESIS   ##
-###################
+## read and parse design constraints
+read_xdc  ${XDC_DIR}/${TOP}.xdc
 
 
 ## synthesize the design
-synth_design -top $TOP -part $PART
+synth_design -top ${TOP} -part ${PART} -flatten_hierarchy full -name syn_1
 
 
 ## write a database for the synthesized design
@@ -105,7 +115,8 @@ report_timing -file $RPT_DIR/synthesis/post_syn_timing.rpt
 ###################
 
 ## place the design
-place_design
+place_design -verbose
+#place_design -no_timing_driven -verbose
 
 
 ## write a database for the routed design
@@ -124,6 +135,7 @@ report_timing -file $RPT_DIR/placement/post_placement_timing.rpt
 
 ## route the design
 route_design
+#route_design -no_timing_driven -verbose
 
 
 ## write a database for the routed design
@@ -144,13 +156,15 @@ report_drc -file $RPT_DIR/routing/post_routing_drc.rpt
 
 
 ## generate bitstream
-write_bitstream -force $OUT_DIR/bitstream/$TOP.bit
+write_bitstream -force ${OUT_DIR}/bitstream/${TOP}.bit
+#write_bitstream -force -raw_bitfile ${OUT_DIR}/bitstream/
 
 
 ## optionally, download the bitstream to target FPGA
-#source  $TCL_DIR/download.tcl
+#source ${TCL_DIR}/download.tcl
 
 
-## optionally, start the GUI and debug synthesis/place-and-route results
+## optionally, start the GUI and debug synthesis/place-and-route schematic results
 #start_gui
+#stop_gui
 
