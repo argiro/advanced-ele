@@ -37,7 +37,7 @@ set TOP  inverter
 #set TOP  [find_top]
 
 ## list of HDL files
-set RTL_SOURCES [list $RTL_DIR/inverter.v ]
+set RTL_SOURCES [list ${RTL_DIR}/inverter.v ]
 
 
 
@@ -68,13 +68,13 @@ set RPT_DIR  [pwd]/reports
 
 
 ## read and parse HDL sources
-read_verilog  $RTL_SOURCES
+read_verilog  ${RTL_SOURCES}
 
 #read_verilog  ${VLOG_SOURCES}
 #read_vhdl     ${VHDL_SOURCES}
 
-#set_part $PART
-#set_property top $TOP [current_fileset]
+#set_part ${PART}
+#set_property top ${TOP} [current_fileset]
 
 
 
@@ -99,13 +99,13 @@ synth_design -top ${TOP} -part ${PART} -flatten_hierarchy full -name syn_1
 
 
 ## write a database for the synthesized design
-write_checkpoint -force $OUT_DIR/checkpoints/synthesis
-#read_checkpoint -force $OUT_DIR/checkpoints/synthesis
+write_checkpoint -force ${OUT_DIR}/checkpoints/synthesis
+#read_checkpoint -force ${OUT_DIR}/checkpoints/synthesis
 
 
 ## generate post-synthesis reports
-report_utilization -file $RPT_DIR/synthesis/post_syn_utilization.rpt
-report_timing -file $RPT_DIR/synthesis/post_syn_timing.rpt
+report_utilization -file ${RPT_DIR}/synthesis/post_syn_utilization.rpt
+report_timing -file ${RPT_DIR}/synthesis/post_syn_timing.rpt
 
 
 
@@ -120,12 +120,12 @@ place_design -verbose
 
 
 ## write a database for the routed design
-write_checkpoint -force $OUT_DIR/checkpoints/placement
+write_checkpoint -force ${OUT_DIR}/checkpoints/placement
 
 
 ## generate post-routing reports
-report_utilization -file $RPT_DIR/placement/post_placement_utilization.rpt
-report_timing -file $RPT_DIR/placement/post_placement_timing.rpt
+report_utilization -file ${RPT_DIR}/placement/post_placement_utilization.rpt
+report_timing -file ${RPT_DIR}/placement/post_placement_timing.rpt
 
 
 
@@ -139,14 +139,14 @@ route_design
 
 
 ## write a database for the routed design
-write_checkpoint -force $OUT_DIR/checkpoints/routing
+write_checkpoint -force ${OUT_DIR}/checkpoints/routing
 
 
 ## generate post-routing reports
-report_utilization -file $RPT_DIR/routing/post_routing_utilization.rpt
-report_timing -file $RPT_DIR/routing/post_routing_timing.rpt
-report_power -file $RPT_DIR/routing/post_routing_power.rpt
-report_drc -file $RPT_DIR/routing/post_routing_drc.rpt
+report_utilization -file ${RPT_DIR}/routing/post_routing_utilization.rpt
+report_timing -file ${RPT_DIR}/routing/post_routing_timing.rpt
+report_power -file ${RPT_DIR}/routing/post_routing_power.rpt
+report_drc -file ${RPT_DIR}/routing/post_routing_drc.rpt
 
 
 
