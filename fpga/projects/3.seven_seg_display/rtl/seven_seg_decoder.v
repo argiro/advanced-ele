@@ -20,7 +20,7 @@
 
 `timescale 1ns / 100ps
 
-module seg_decoder(
+module seven_seg_decoder (
 
    input [3:0] BCD,
 
