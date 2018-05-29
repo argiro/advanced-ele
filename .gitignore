@@ -1,2 +1,7 @@
 *.log
 *~
+
+fpga/projects/*/work
+
+tmp/
+test/

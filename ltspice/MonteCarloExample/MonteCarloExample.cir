@@ -1,0 +1,10 @@
+* C:\Users\luca\Desktop\MonteCarloExample\MonteCarloExample.asc
+V1 N001 0 5V
+R1 N001 0 {mc(Rvalue,tol)}
+.param Rvalue 1k
+.param tol 0.05
+.step param run 1 10000 1
+* -- Simulation statements --
+.op
+.backanno
+.end
