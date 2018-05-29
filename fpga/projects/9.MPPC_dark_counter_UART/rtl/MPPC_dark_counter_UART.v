@@ -8,7 +8,7 @@
 // [Authors]        Luca Pacher - pacher@to.infn.it
 // [Language]       Verilog 2001 [IEEE Std. 1364-1995]
 // [Created]        May  6, 2017
-// [Modified]       May 22, 2017
+// [Modified]       May 22, 2018
 // [Description]    Firmware for SiPM dark-counter connected to a simplified TX-only UART block
 //                  for simple FPGA-to-PC data transmission.
 //
@@ -16,15 +16,19 @@
 //
 // [Version]        1.0
 // [Revisions]      06.05.2017 - Created
+//                  22.05.2018 - Added check on dark-count overflow, programmable TIMER counter
+//                               with 1ms time resolution
 //-----------------------------------------------------------------------------------------------------
 
 
 // Dependencies:
 //
+// $RTL_DIR/debouncer.v
 // $RTL_DIR/BCD_counter_Ndigit.v
 // $RTL_DIR/seven_seg_decoder.v
 // $RTL_DIR/UART/BCD_to_char.v
-// $RTL_DIR/UART/uart_tx_Nbytes.v
+// $RTL_DIR/UART/uart_rx_dummy.v
+// $RTL_DIR/UART/uart_tx_dummy.v
 
 
 `timescale 1ns / 1ps                         // for simulation-purposes only
@@ -33,18 +37,26 @@
 `define  Ndigit  8                           // total number of digits, here defined as a Verilog MACRO
 `define  Nbytes  9                           // number of BYTES to be transmitted over RS-232 serial protocol to PC (8-digits + '\n' character)
 
+`define ACQUISITION_TIME 10000               // 20-bit integer => T = (`ACQUISITION_TIME) x (1ms time resolution)
 
 module  MPPC_dark_counter_UART (
 
+   // clock and control signals
    input   wire clk,                         // on-board 100 MHz clock source
-   input   wire rst,                         // global ASYNCHRONOUS reset (e.g. push-button)
-   input   wire start,                       // push-button or slide switch
+   input   wire rst_button,                  // global ASYNCHRONOUS reseti, active-high (push-button)
+   input   wire start_button,                // start flag (push-button)
    input   wire disc_pulse,                  // DISC output pulse (3.3V CMOS)
 
-   // status flags
-   output  wire busy,                        // map these flags to some LEDs to indicate that counting is ongoing or completed  
-   output  wire finish,
+   // test-mode
+   input wire test_mode,                     // MUX control (slide-switch)
+   input wire test_pulse,                    // user pulse to check counting and UART transmission
 
+   // status flags
+   output  wire busy,                        // map these flags to some LEDs to indicate that counting is ongoing, completed or overflow
+   output  wire done,
+   output  wire overflow,
+
+   // 7-segment display signals
    output  wire segA,                        // 7-segment diplay LEDs
    output  wire segB,
    output  wire segC,
@@ -54,158 +66,234 @@ module  MPPC_dark_counter_UART (
    output  wire segG,
    output  reg [(`Ndigit-1):0] seg_anode,    // 7-segment diplay anodes array with one-hot encoding 
 
-   // UART interface
-   output wire probe,                        // output serial line, to oscilloscope probe
+   // USB/UART bridge interface
    output wire TxD,                          // output serial line, to PC
-   input  wire RxD                           // input serial line (not implemented)
+   input  wire RxD,                          // input serial line, from PC
+
+   // **DEBUG: oscilloscope probes
+   output wire disc_pulse_probe,             // buffered DISC pulse
+   output wire rx_probe,                     // UART input serial line
+   output wire tx_probe                      // UART output serial line
 
    ) ;
 
 
-   // just for debug purposes, send the TxD serial output to a test-point on the board
-   assign probe = TxD ;
+
+   ///////////////////////////////////////////////////////////////////////////////////////
+   //   push-button debouncers (single-pulse generators at ~ 1kHz sampling frequency)   //
+   ///////////////////////////////////////////////////////////////////////////////////////
+
+   wire rst ;
+
+   debouncer debouncer_0 (
+
+      .clk    (        clk ),
+      .button ( rst_button ),
+      .pulse  (        rst )       // **SYNCHRONOUS, active-high
+
+      ) ;
 
 
-   // free-running counter for on-board 100 MHz clock division and slicing
+   wire start_ext ;
 
-   reg [26:0] clk_count ;
+   debouncer debouncer_1 (
 
-   always @(posedge clk) begin
-      clk_count <= clk_count + 1'b1 ;
-   end
-
-
-
-   // timer clock
-   wire    clk_time_counter ;
-
-   //assign  clk_time_counter = clk_count[24] ;
-   assign  clk_time_counter = clk_count[25] ;              // 100 MHz / 2^(25+1) = 1.49 Hz, ~ 0.7s for each count
-   //assign  clk_time_counter = clk_count[26] ;
-   //assign  clk_time_counter = clk_count[27] ;
-
-
-   // control slice for multiplexing anodes and BCD-boundles
-   wire [2:0] count_slice ;
-
-   assign count_slice = clk_count[20:18] ;                // this choice determines the refresh frequency for 7-segment diplay digits
-
-
-
-   //-------------------------   START logic   -------------------------------//
-
-
-   // push-button debouncer (single-pulse generator)
-
-   reg start_synch_q0, start_synch_q1, start_synch_q2 ;    // D-FlipFlops outputs
-
-   always @(posedge clk or posedge rst) begin
-
-      if( rst == 1'b1 ) begin                   // asynchronous, active-high reset
-
-         start_synch_q0 <= 1'b0 ;
-         start_synch_q1 <= 1'b0 ;
-         start_synch_q2 <= 1'b0 ;
-      end
-
-      else begin
-      
-         start_synch_q0 <= start ;              // from push-button or slide switch
-         start_synch_q1 <= start_synch_q0 ;
-         start_synch_q2 <= start_synch_q0 & (~ start_synch_q1) ;
-      end
-   end
-
-   wire    start_pulse ;
-   assign  start_pulse = start_synch_q2 ;
-
-
-
-   // register the START-flag into a 1-bit register
-
-   reg start_reg ;
-
-   always @(posedge clk or posedge rst) begin
-
-      if( rst == 1'b1 )            // asynchronous, active-high reset  
-         start_reg <= 1'b0 ;
-
-      else
-         if(start_pulse == 1'b1)   // else... what happens ?
-            start_reg <= 1'b1 ;
-   end
-
-
-
-   //-------------------------   TIMER counter   -------------------------------//
-
-   reg [4:0] time_count ;
-
-
-   // max. count, defines the overall acquisition window in terms of clk_time_counter cycles
-   wire [4:0] time_count_max = 5'd11 ;
-
-
-   always @(posedge clk_time_counter or posedge rst) begin
-
-      if( rst == 1'b1 )           // asynchronous, active-high reset
-         time_count <= 'b0 ;
-
-      else
-         if( (start_reg == 1'b1) && (time_count < time_count_max ) )   // else... what happens ?
-            time_count <= time_count + 1'b1 ;
-
-   end
-
-
-
-
-   //-------------------------   STOP logic   -------------------------------//
-
-
-   // register the STOP-flag into a 1-bit register
-
-   reg stop_reg ;
-
-   always @(posedge clk or posedge rst) begin
-
-      if( rst == 1'b1 )           // asynchronous, active-high reset   
-         stop_reg <= 1'b0 ;
-      else
-         if( time_count == time_count_max )   // count-overflow reached, genenerate and register a flag for this condition
-            stop_reg <= 1'b1 ;
-   end
-
-   
-   // combine start/stop flags to generate a count-enable for the BCD counter
-   wire    dark_counter_en ;
-   assign  dark_counter_en = start_reg & (~stop_reg) ;
-
-   // status flags
-   assign busy = dark_counter_en ;
-   assign finish = stop_reg ;
-
-
-
-   //------------------------   BCD counter   -------------------------------//   
-
-   // instantiate an N-digit BCD counter to count the number of dark-count pulses
-
-   wire [(`Ndigit*4)-1:0] BCD_dark_count ;
-
-   BCD_counter_Ndigit  #( .Ndigit(`Ndigit) )   dark_counter (
-
-      .clk  (                      disc_pulse ),           // from DISC
-      .rst  (                             rst ),
-      .en   (                 dark_counter_en ),
-      .BCD  ( BCD_dark_count[(`Ndigit*4)-1:0] )
+      .clk    (          clk ),
+      .button ( start_button ),
+      .pulse  (    start_ext )
 
       ) ;
 
 
 
+   ////////////////////////////////////////
+   //   dummy USB/UART bridge receiver   //
+   ////////////////////////////////////////
 
-   //-------------------------   7-segment display multiplexing logic   -------------------------------//
+   wire start_uart ;
+
+   uart_rx_dummy   uart_rx (
+
+      .clk        (        clk ),
+      .rx_lane    (        RxD ),
+      .start_uart ( start_uart ),
+      .rx_probe   (   rx_probe )
+
+      ) ;
+
+
+
+   /////////////////////
+   //   START logic   //
+   /////////////////////
+
+   // combine flags from push-button or from UART
+
+   wire start_or ;
+   assign start_or = start_ext | start_uart ;     // ~ ms pulse
+
+   // single-clock pulse generator
+
+   reg start_ff0 = 1'b0 ;
+   reg start_ff1 = 1'b0 ;
+   reg start_ff2 = 1'b0 ;
+   reg start_ff3 = 1'b0 ; 
+
+   always @(posedge clk) begin
+      start_ff0 <= start_or ;
+      start_ff1 <= start_ff0 ;
+      start_ff2 <= start_ff0 & (~start_ff1) ;
+      start_ff3 <= start_ff2 ;
+   end   // always
+
+
+   wire start_rst ; assign start_rst = start_ff2 ;             // use the first pulse to reset the dark-count value without the need of pressing a button
+   wire start_pulse ; assign start_pulse = start_ff3 ;         // use the delayed pulse to start the counter
+
+   // register start_pulse into a 1-bit register
+
+   reg start_reg = 1'b0 ;
+
+   always @(posedge clk) begin
+
+      if( (rst == 1'b1) || (start_rst == 1'b1) )
+         start_reg <= 1'b0 ;
+
+      else if(start_pulse == 1'b1)
+            start_reg <= 1'b1 ;     // and keep the value until an external reset or a new start is issued ...
+   end   // always
+
+
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////
+   //   free-running counters for 7-segment display anode multiplexing and acquisition window   //
+   ///////////////////////////////////////////////////////////////////////////////////////////////
+
+   // these free-running counters are used for 7-segment display anodes multiplexing and to determine the acquisition time
+
+   reg [19:0] count_seg = 'b0 ;       // **NOTE: no need fo reset
+   reg [19:0] count_timer = 'b0 ;     // **NOTE: no need for reset
+
+   always @(posedge clk)
+      count_seg <= count_seg + 1 ;
+
+   always @(posedge clk) begin
+      if( count_timer == 100000 -1)
+         count_timer <= 'b0 ;               // force the roll-over at 1 kHz frequency, i.e. every 1 ms
+      else
+         count_timer <= count_timer + 1 ;
+   end
+
+
+   //
+   // 1ms TIMER 'tick'
+   //
+
+   // generate a single-clock pulse 'tick' at each reset
+   wire timer_clock_enable ;
+   assign timer_clock_enable = ( count_timer == 1'b0 ) ? 1'b1 : 1'b0 ;
+
+
+   //
+   // 7-SEGMENT DISPLAY ANODES REFRESH
+   //
+
+   // control slice for multiplexing anodes and BCD-boundles
+   wire [2:0] refresh_slice ;
+
+   assign refresh_slice = count_seg[15:13] ;                // this choice determines the refresh frequency for 7-segment diplay digits
+
+
+
+   ///////////////////////
+   //   TIMER counter   //
+   /////////////////////// 
+
+   // another 20-bit counter
+   reg [19:0] acquisition_count ;
+
+   // max. count, defines the overall acquisition window in terms of ms
+   wire [19:0] acquisition_time = `ACQUISITION_TIME ;     // 1ms x `ACQUISITION_TIME
+   //wire [19:0] acquisition_time = 10000 ;     // 1ms x `ACQUISITION_TIME
+
+
+   always @(posedge clk) begin
+
+      if( (rst == 1'b1) || (start_rst == 1'b1) )
+         acquisition_count <= 'b0 ;
+
+      else
+         if( (timer_clock_enable == 1'b1) && (start_reg == 1'b1) && (acquisition_count < acquisition_time ) )
+            acquisition_count <= acquisition_count + 1'b1 ;
+
+   end
+
+
+
+   ////////////////////
+   //   STOP logic   //
+   ////////////////////
+
+   // register the STOP-flag into a 1-bit register
+
+   reg stop_reg =1'b0 ;
+
+   always @(posedge clk) begin
+
+      if( (rst == 1'b1) || (start_rst == 1'b1) )
+         stop_reg <= 1'b0 ;
+      else
+         if( (acquisition_count == acquisition_time)  || (overflow == 1'b1) )
+            stop_reg <= 1'b1 ;
+   end
+
+
+
+   /////////////////////////////
+   //   N-digit BCD counter   //
+   /////////////////////////////
+   
+   // combine start/stop flags and BCD counter overflow to generate a count-enable for the BCD counter
+
+   wire    dark_counter_en ;
+   //assign  dark_counter_en = start_reg & (~stop_reg) & (~overflow) ;    //  **COMBINATIONAL LOOP ! Vivado refuses to synthesisze this !
+   assign  dark_counter_en = start_reg & (~stop_reg) ;
+
+   // status flags
+   assign busy = dark_counter_en ;
+   assign done = stop_reg ;
+
+
+   // MUX control (switch between test-mode and normal mode)
+
+   wire pulse_count ;
+   assign pulse_count = ( test_mode == 1'b1 ) ? test_pulse : disc_pulse ;
+
+
+   // instantiate an N-digit BCD counter to count the number of dark-count pulses
+
+   wire [(`Ndigit*4)-1:0] BCD ;                 // from the BCD counter
+   wire [(`Ndigit*4)-1:0] BCD_dark_count ;      // take into account of overflow
+
+   BCD_counter_Ndigit  #( .Ndigit(`Ndigit) )   dark_counter (
+
+      //.clk      (                  ~clk ),         // **DEBUG: test overflow
+      .clk      (           pulse_count ),           // from DISC or from PB
+      .rst      (       rst | start_rst ),
+      .en       (       dark_counter_en ),
+      .BCD      (  BCD[(`Ndigit*4)-1:0] ),
+      .overflow (              overflow )
+
+      ) ;
+
+
+   assign BCD_dark_count = ( overflow == 1'b0 ) ? BCD : {`Ndigit{4'b1001}} ;   // force 999...9 in case of overflow
+
+
+
+   //////////////////////////////////////////////
+   //   7-segment display multiplexing logic   //
+   ////////////////////////////////////////////// 
 
    // multiplex BCD slices
 
@@ -213,7 +301,7 @@ module  MPPC_dark_counter_UART (
 
    always @(*) begin   // pure combinational block
 
-      case( count_slice )
+      case( refresh_slice )
 
          0  :  BCD_mux[3:0] <= BCD_dark_count[ 3: 0] ;
          1  :  BCD_mux[3:0] <= BCD_dark_count[ 7: 4] ;
@@ -256,18 +344,24 @@ module  MPPC_dark_counter_UART (
 
       for( i = 0 ; i < `Ndigit ; i = i+1 ) begin
 
-         seg_anode[i] = ( count_slice == i ) ;
+         seg_anode[i] = ( refresh_slice == i ) ;
 
       end  // for
    end  // always
 
+   // alternatively, use concurrent conditional assignments on wires
+
+   //assign seg_anode[0] = ( refresh_slice == 0 ) ? 1'b1 : 1'b0 ;
+   //assign seg_anode[1] = ( refresh_slice == 1 ) ? 1'b1 : 1'b0 ;
+   //assign seg_anode[2] = ( refresh_slice == 2 ) ? 1'b1 : 1'b0 ;
+   //assign seg_anode[3] = ... ;
+   //assign seg_anode[4] = ... ;
 
 
 
-
-
-   //-------------------------   7-segment decoder   -------------------------------//
-
+   ///////////////////////////
+   //   7-segment decoder   //
+   ///////////////////////////
 
    seven_seg_decoder  decoder (
 
@@ -285,7 +379,9 @@ module  MPPC_dark_counter_UART (
 
 
 
-   //-------------------------   BCD-to-ASCII conversion   -------------------------------//
+   /////////////////////////////////
+   //   BCD-to-ASCII conversion   //
+   /////////////////////////////////
 
 
    // 8-bit (1-Byte) ASCII **CHARACTERS** to be trasmitted to the PC through RS-232 serial protocol
@@ -358,11 +454,13 @@ module  MPPC_dark_counter_UART (
 
 
 
+   //////////////////////////////////////////
+   //   dummy USB/UART bridge trasmitter   //
+   //////////////////////////////////////////
 
-   //-------------------------   TX-DATA   -------------------------------//
-
-   // payload data to be trasmitted over RS-232
-
+   //
+   // PAYLOAD DATA to be trasmitted over RS-232
+   //
 
    // **NOTE: According to RS-232 LSB is transmitted first!
    //         Hence send 8'hA = '\n' (new-line) character first
@@ -371,35 +469,29 @@ module  MPPC_dark_counter_UART (
    assign tx_data = { 8'hA , char_0 , char_1 , char_2 , char_3 , char_4 , char_5 , char_6 , char_7 } ;
 
 
-
-
-
-   //-------------------------   BAUD-RATE GENERATOR   -------------------------------//
+   //
+   // BAUD-RATE GENERATOR
+   //
 
    // generate a ~9.6 kHz single-clock pulse Baud-rate for data trasmission by dividing
    // the on-bard 100 MHz clock by 10415
 
    // 14-bit free-running counter
-   reg [13:0] count ;
+   reg [13:0] count_baudrate = 'b0 ;
 
    always @(posedge clk)
-      if( count == 10414 )
-         count <= 'b0 ;                               // force the roll-over 
+      if( count_baudrate == 10414 )
+         count_baudrate <= 'b0 ;                               // force the roll-over 
       else
-         count <= count + 1'b1 ;
+         count_baudrate <= count_baudrate + 1 ;
 
    wire tx_en ;
-   assign tx_en = ( count == 0 ) ? 1'b1 : 1'b0 ;     // assert a single-clock pulse each time the counter resets
+   assign tx_en = ( count_baudrate == 0 ) ? 1'b1 : 1'b0 ;     // assert a single-clock pulse each time the counter resets
 
 
-
-
-
-   //-------------------------   UART TX UNIT   -------------------------------//
 
    // generate a single-clock pulse tx_start flag from the stop_reg flag to initialize the serial
    // communication over RS-232 (alternatively, use a push-button to start transactions)
-
 
    reg tx_start_q0, tx_start_q1, tx_start_q2 ;           // D-FlipFlops outputs
 
@@ -414,9 +506,11 @@ module  MPPC_dark_counter_UART (
    assign tx_start = tx_start_q2 ;
 
 
+   //
    // simplified UART TX unit
+   //
 
-   uart_tx_Nbytes   #( .Nbytes(`Nbytes) )   uart_tx (
+   uart_tx_dummy  #( .Nbytes(`Nbytes) )   uart_tx (
 
       .clk       (                      clk ),
       .tx_start  (                 tx_start ),
@@ -425,6 +519,18 @@ module  MPPC_dark_counter_UART (
       .tx_lane   (                      TxD )
 
       ) ;
+
+
+   /////////////////////////////
+   //   oscilloscope probes   //
+   /////////////////////////////
+
+   // buffer DISC pulse from breadboard
+   //assign disc_pulse_probe = disc_pulse ;
+   assign disc_pulse_probe = pulse_count ;     // better, after test-mode MUX
+
+   // just for debug purposes, send the TxD serial output to a test-point on the board
+   assign tx_probe = TxD ;
 
 
 endmodule

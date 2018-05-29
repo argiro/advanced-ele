@@ -8,7 +8,7 @@
 # [Author]         Luca Pacher - pacher@to.infn.it
 # [Language]       Python/ROOT
 # [Created]        May  5, 2017
-# [Modified]       May 23, 2017
+# [Modified]       May 21, 2018
 # [Description]    Python script to read dark-count data from FPGA through USB/UART RS-232 serial
 #                  interface. Uses ROOT components to monitor "on-line" recorded count values. 
 #
@@ -18,6 +18,7 @@
 #
 # [Version]        1.0
 # [Revisions]      05.05.2017 - Created
+#                  22.05.2018 - Added support for START issued from PC through dummy UART
 #-----------------------------------------------------------------------------------------------------
 
 
@@ -48,7 +49,7 @@ graph.SetMarkerSize(1.0)
 graph.SetTitle("Counts vs. run number")
 
 
-period = 7.0
+period = 10.0 ;  ## seconds
 
 counts = 0
 
@@ -98,7 +99,18 @@ try :
 	ROOT.gPad.Update()
 
 	print "Successfully connected to", s.name , "\n"
+	print "Type RETURN to start acquisition \n"
 	print "Type Ctrl-C to quit the script"
+
+	## user input from command line
+	ui = raw_input()
+
+	if(ui == "") :
+		#s.write('\0') ;   ## wite all-zeroes NULL character i.e. 0x00
+		s.write('\x00') ;  ## this is equivalent, just use HEX byte code
+	else :
+		pass
+
 
 except serial.SerialException as error :
 
@@ -127,7 +139,6 @@ while(1) :
 
 		yError = math.sqrt(counts)
 
-		print "%d\t %d\t %f" % (index, counts, rate)
 
 		## plot the point with Posson error
 		graph.SetPoint(index-1, index, counts )
@@ -141,11 +152,22 @@ while(1) :
 		f.write("%s\t" % index)
 		f.write("%s\n" % counts)
 
-		index = index + 1
 
 		#if( index > Npt ) :
 		#	graph.Expand(index)
 
+		print "%d\t %d\t %f\t -- Press RETURN to issue a new START, Ctrl-C to quit the script" % (index, counts, rate)
+
+		## user input from command line, if RETURN is pressed, ui is an empty list ""
+		ui = raw_input()
+
+		if(ui == "") :
+			#s.write('\0') ;   ## wite all-zeroes NULL character i.e. 0x00
+			s.write('\x00') ;  ## this is equivalent, just use HEX byte code
+		else :
+			pass
+
+		index = index + 1
 
 	## catch a Ctrl-C interrupt to safely exit from the while loop
 	except KeyboardInterrupt :

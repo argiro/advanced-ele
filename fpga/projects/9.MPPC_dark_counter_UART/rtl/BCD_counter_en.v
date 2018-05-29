@@ -18,7 +18,7 @@
 
 `timescale 1ns / 100ps
 
-module BCD_counter_en(
+module BCD_counter_en (
 
    input clk,
    input rst,

@@ -25,7 +25,7 @@
 
 
 
-module BCD_counter_Ndigit(clk, rst, en, BCD) ;
+module BCD_counter_Ndigit(clk, rst, en, BCD, overflow) ;
 
    parameter  Ndigit = 3 ;
 
@@ -33,13 +33,14 @@ module BCD_counter_Ndigit(clk, rst, en, BCD) ;
    input   rst ;
    input   en ;
    output  [Ndigit*4-1:0] BCD ;
+   output  overflow ;
 
 
 
    wire [Ndigit:0] carryout ;   // roll-over flags
 
    assign carryout[0] = en ;
-
+   assign overflow = carryout[Ndigit] ;
 
    generate
       genvar k ;
@@ -61,3 +62,4 @@ module BCD_counter_Ndigit(clk, rst, en, BCD) ;
    endgenerate
 
 endmodule
+

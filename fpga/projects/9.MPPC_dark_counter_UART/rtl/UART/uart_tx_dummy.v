@@ -3,14 +3,15 @@
 //                               University of Torino - Department of Physics
 //                                   via Giuria 1 10125, Torino, Italy
 //-----------------------------------------------------------------------------------------------------
-// [Filename]       uart_tx_Nbytes.v  [FINAL LAB PROJECT]
+// [Filename]       uart_tx_dummy.v  [FINAL LAB PROJECT]
 // [Project]        Advanced Electronics Laboratory course
 // [Authors]        Luca Pacher - pacher@to.infn.it
 // [Language]       Verilog 2001 [IEEE Std. 1364-1995]
 // [Created]        May 6, 2017
 // [Modified]       May 8, 2017
 // [Description]    Simplified UART TX unit using a one-hot bit counter to keep track of data-alignment.
-//                  Additional implementations using FSM are available too.
+//                  A realistic implementation uses a FSM to serialize parallel input data and a FIFO to
+//                  properly interface the trasmitter with the user logic.
 //
 // [Notes]          Use the Nbytes Verilog parameter to customize the number of BYTES (ASCII characters)
 //                  transmitted over RS-232 serial protocol.
@@ -28,7 +29,7 @@
 `timescale 1ns / 1ps
 
 
-module uart_tx_Nbytes (clk, tx_start, tx_en, tx_data, tx_lane) ;
+module uart_tx_dummy (clk, tx_start, tx_en, tx_data, tx_lane) ;
 
    parameter Nbytes = 1 ;
 
