@@ -23,23 +23,22 @@
 //
 // $RTL_DIR/BCD_counter_en.v
 
+module BCD_counter_Ndigit(clk, rst, en, BCD, overflow) ;
 
-
-module BCD_counter_Ndigit(clk, rst, en, BCD) ;
-
-   parameter  Ndigit = 3 ;
+   parameter  Ndigit = 8 ;
 
    input   clk ;
    input   rst ;
    input   en ;
    output  [Ndigit*4-1:0] BCD ;
+   output  overflow ;                       // this indicates when the count is 999... 999
 
 
 
    wire [Ndigit:0] carryout ;   // roll-over flags
 
    assign carryout[0] = en ;
-
+   assign overflow = carryout[Ndigit] ;
 
    generate
       genvar k ;

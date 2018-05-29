@@ -28,23 +28,29 @@ module LFSR (
    ) ;
 
 
+   // free-running counter (clock divider)
+   reg [3:0] count = 4'b0000 ;
 
-   reg [3:0] clk_div ;
+   wire [3:0] count_max = 4'd3 ;
 
    always @(posedge clk)
-      clk_div <= clk_div + 1 ;
+      if(count == count_max)
+         count <= 'b0 ;           // force the roll-over
+      else
+         count <= count + 1 ;
 
 
    wire clk_LFSR ;
 
    //assign clk_LFSR = clk ;              // 100 MHz
-   //assign clk_LFSR = clk_div[0] ;       // 50 MHz
-   assign clk_LFSR = clk_div[1] ;         // 25 MHz
+   //assign clk_LFSR = count[0] ;         // 50 MHz
+   //assign clk_LFSR = count[1] ;           // 25 MHz
 
 
    reg [7:0] LFSR = 8'hFF ;               // seed
 
 
+   /*
    always @(posedge clk_LFSR) begin       // **BAD design practice !!! Why ???
 
       LFSR[0] <= LFSR[7] ;
@@ -57,11 +63,11 @@ module LFSR (
       LFSR[7] <= LFSR[6] ;
 
    end   // always
+   */
 
-   /*
    always @(posedge clk) begin       // **GOOD design practice !!! Why ???
 
-      if( clk_LFSR == 1'b1 ) begin
+      if( count ==  ) begin
 
          LFSR[0] <= LFSR[7] ;
          LFSR[1] <= LFSR[0] ;
@@ -74,10 +80,8 @@ module LFSR (
 
       end
    end   // always
-   */
 
    assign PRBS = LFSR[7] ;
-
 
 endmodule
 

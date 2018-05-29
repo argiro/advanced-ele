@@ -5,13 +5,12 @@
 //-----------------------------------------------------------------------------------------------------
 // [Filename]       MPPC_dark_counter.v  [FINAL LAB PROJECT]
 // [Project]        Advanced Electronics Laboratory course
-// [Authors]        <group members>
+// [Author]         Luca Pachwr - pacher@to.infn.it 
 // [Language]       Verilog 2001 [IEEE Std. 1364-1995]
 // [Created]        May 25, 2016
 // [Modified]       May 25, 2016
-// [Description]    RTL code for the MPPC dark-counter 
-// [Notes]          Edit the code in order to fit the actual number of digits adopetd for the dark 
-//                  counter
+// [Description]    Top RTL code for the MPPC dark-counter project.
+// [Notes]          -
 // [Version]        1.0
 // [Revisions]      25.05.2016 - Created
 //-----------------------------------------------------------------------------------------------------
@@ -20,21 +19,23 @@
 `timescale 1ns / 100ps
 
 
-// Dependences:
+// Dependencies:
 //
+// $RTL_DIR/debouncer.v
 // $RTL_DIR/BCD_counter_Ndigit.v
 // $RTL_DIR/seven_seg_decoder.v
 
 
-`define  Ndigit  8
-//`define  Ndigit  9
+`define  Ndigit  8   // 2x 4-digit 7-segment display modules
 
-module  MPPC_dark_counter(
+
+module  MPPC_dark_counter (
 
    input   clk,                    // on-board 100 MHz clock source
    input   rst,                    // global ASYNCHRONOUS reset (push-button)
-   input   start,                  // push-button or slide switch
+   input   start,                  // push-button
    input   disc_pulse,             // DISC output pulse (3.3V CMOS)
+   output  disc_probe,             // optionally, buffer the hit from DISC for the oscilloscope
    output  segA,
    output  segB,
    output  segC,
@@ -42,10 +43,12 @@ module  MPPC_dark_counter(
    output  segE,
    output  segF,
    output  segG,
-   output  reg [(`Ndigit-1):0] seg_anode     // anodes array with one-of-N encoding 
+   output  reg [(`Ndigit-1):0] seg_anode     // anodes array with one-hot encoding
 
    ) ;
 
+   // buffer on "analog" hit fed to FPGA
+   assign disc_probe = disc_pulse ;
 
 
    // free-running counter for on-board 100 MHz clock division and slicing
@@ -73,26 +76,6 @@ module  MPPC_dark_counter(
    //-------------------------   START logic   -------------------------------//
 
 
-   // single-pulse generator
-
-   reg start_synch_q0, start_synch_q1, start_synch_q2 ;
-
-   always @(posedge clk or posedge rst) begin
-
-      if( rst == 1'b1 ) begin
-
-         start_synch_q0 <= 1'b0 ;
-         start_synch_q1 <= 1'b0 ;
-         start_synch_q2 <= 1'b0 ;
-      end
-
-      else begin
-      
-         start_synch_q0 <= start ;              // from push-button or slide switch
-         start_synch_q1 <= start_synch_q0 ;
-         start_synch_q2 <= start_synch_q0 & (~ start_synch_q1) ;
-      end
-   end
 
    wire    start_pulse ;
    assign  start_pulse = start_synch_q2 ;
@@ -153,24 +136,30 @@ module  MPPC_dark_counter(
             stop_reg <= 1'b1 ;
    end
 
-   
-   // combine start/stop flags to generate a count-enable for the BCD counter
-   wire    dark_counter_en ;
-   assign  dark_counter_en = start_reg & (~stop_reg) ;
 
 
-
-   
-   // N-digit BCD counter
+   /////////////////////////////
+   //   N-digit BCD counter   //
+   /////////////////////////////
 
    wire [(`Ndigit*4)-1:0] BCD_dark_count ;
 
+   wire overflow ;
+   assign overflow = (BCD_dark_count == 10**(`Ndigit) -1) ? 1'b1 : 1'b0 ;  // overflow flag when the count is 9999 ... 9
+   
+   // generate a count-enable for the BCD counter by combining start/stop flags or count-overflow at roll-over
+   wire    dark_counter_en ;
+   assign  dark_counter_en = start_reg & (~stop_reg) & (~overflow) ;
+
+   
+   
    BCD_counter_Ndigit  #(`Ndigit) dark_counter(
 
       .clk  (        disc_pulse ),
       .rst  (               rst ),
       .en   (   dark_counter_en ),
       .BCD  (    BCD_dark_count )
+      //.overflow (               )       // alternatively whe can use also the last-digit overflow flag (lesser resources)
 
       ) ;
 
@@ -190,8 +179,8 @@ module  MPPC_dark_counter(
          0  :  BCD_mux <= BCD[ 3:0] ;
          1  :  BCD_mux <= BCD[ 7:4] ;
          2  :  BCD_mux <= BCD[...] ;
-         // ...
-         // ...
+         //3 ...
+         //4 ...
 
          default : BCD_mux <= BCD[3:0] ;      // latches inferred otherwise (catch-all)
 
@@ -207,7 +196,7 @@ module  MPPC_dark_counter(
 
       for( i = 0 ; i < `Ndigit ; i = i+1 ) begin
 
-         seg_anode[i] = ( count_slice == i ) ;
+         seg_anode[i] = ( count_slice == i ) ;       // appreciate here the beauty of Verilog, this cannot be coded in VHDL without explicit type-casting ! 'i' is integer, 'count_slice' a bus...
 
       end  // for
    end  // always

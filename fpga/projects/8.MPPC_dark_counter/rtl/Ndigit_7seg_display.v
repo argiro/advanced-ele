@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------------------------------
 
 
-// Dependences:
+// Dependencies:
 //
 // $RTL_DIR/BCD_counter_Ndigit.v
 // $RTL_DIR/seven_seg_decoder.v
